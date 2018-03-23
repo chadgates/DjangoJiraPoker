@@ -10,7 +10,7 @@ var gulp = require('gulp'),
       sass = require('gulp-sass'),
       autoprefixer = require('gulp-autoprefixer'),
       cssnano = require('gulp-cssnano'),
-      
+      exec = require('child_process').exec,
       rename = require('gulp-rename'),
       del = require('del'),
       plumber = require('gulp-plumber'),
@@ -29,14 +29,15 @@ var pathsConfig = function (appName) {
   var vendorsRoot = 'node_modules/';
 
   return {
-    
+
     app: this.app,
     templates: this.app + '/templates',
     css: this.app + '/static/css',
     sass: this.app + '/static/sass',
     fonts: this.app + '/static/fonts',
     images: this.app + '/static/images',
-    js: this.app + '/static/js'
+    js: this.app + '/static/js',
+    pyvenv : process.env.VIRTUALENVWRAPPER_HOOK_DIR,
   }
 };
 
@@ -51,7 +52,7 @@ gulp.task('styles', function() {
   return gulp.src(paths.sass + '/project.scss')
     .pipe(sass({
       includePaths: [
-        
+
         paths.sass
       ]
     }).on('error', sass.logError))
@@ -84,11 +85,20 @@ gulp.task('imgCompression', function(){
 });
 
 // Run django server
-gulp.task('runServer', function(cb) {
-  var cmd = spawn('python', ['manage.py', 'runserver'], {stdio: 'inherit'});
-  cmd.on('close', function(code) {
-    console.log('runServer exited with code ' + code);
-    cb(code);
+//gulp.task('runServer', function(cb) {
+//  var cmd = spawn('python', ['manage.py', 'runserver'], {stdio: 'inherit'});
+//  cmd.on('close', function(code) {
+//    console.log('runServer exited with code ' + code);
+//    cb(code);
+//  });
+//});
+
+
+// Run django server
+gulp.task('runServer', function() {
+  exec('source ' + paths.pyvenv + '/projJiraPoker/bin/activate && python manage.py runserver', function (err, stdout, stderr) {
+    console.log(stdout);
+    console.log(stderr);
   });
 });
 
